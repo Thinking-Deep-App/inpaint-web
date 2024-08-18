@@ -31,7 +31,7 @@ export default function Button(props: ButtonProps) {
   const [active, setActive] = useState(false)
   let background = ''
   if (primary) {
-    background = 'bg-primary hover:bg-black hover:text-white'
+    background = 'bg-primary text-white hover:bg-black hover:text-white'
   }
   if (active) {
     background = 'bg-black text-white'
@@ -62,7 +62,7 @@ export default function Button(props: ButtonProps) {
       }}
       tabIndex={-1}
       className={[
-        'inline-flex space-x-3 py-3 px-5 rounded-md cursor-pointer',
+        'inline-flex space-x-3 h-10 items-center px-5 rounded-full cursor-pointer ',
         background,
         className,
       ].join(' ')}

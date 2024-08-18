@@ -1,6 +1,11 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import { DownloadIcon, EyeIcon, ViewBoardsIcon } from '@heroicons/react/outline'
+import {
+  ArrowLeftIcon,
+  DownloadIcon,
+  EyeIcon,
+  ViewBoardsIcon,
+} from '@heroicons/react/outline'
 import { useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { useWindowSize } from 'react-use'
 import inpaint from './adapters/inpainting'
@@ -15,6 +20,8 @@ import * as m from './paraglide/messages'
 
 interface EditorProps {
   file: File
+  inpaintType: string
+  onBack: () => void
 }
 
 interface Line {
@@ -46,7 +53,7 @@ function drawLines(
 
 const BRUSH_HIDE_ON_SLIDER_CHANGE_TIMEOUT = 2000
 export default function Editor(props: EditorProps) {
-  const { file } = props
+  const { file, inpaintType, onBack } = props
   const [brushSize, setBrushSize] = useState(40)
   const [original, isOriginalLoaded] = useImage(file)
   const [renders, setRenders] = useState<HTMLImageElement[]>([])
@@ -649,6 +656,15 @@ export default function Editor(props: EditorProps) {
           'flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-5',
         ].join(' ')}
       >
+        {renders.length === 0 && (
+          <Button
+            primary
+            onClick={() => onBack()}
+            icon={<ArrowLeftIcon className="w-6 h-6" />}
+          >
+            Back
+          </Button>
+        )}
         {renders.length > 0 && (
           <Button
             primary
@@ -672,14 +688,20 @@ export default function Editor(props: EditorProps) {
             {m.undo()}
           </Button>
         )}
-        <Slider
-          label={m.bruch_size()}
-          min={10}
-          max={200}
-          value={brushSize}
-          onChange={handleSliderChange}
-          onStart={handleSliderStart}
-        />
+        {inpaintType === 'rmbg' && (
+          <Slider
+            label={m.bruch_size()}
+            min={10}
+            max={200}
+            value={brushSize}
+            onChange={handleSliderChange}
+            onStart={handleSliderStart}
+          />
+        )}
+
+        {inpaintType === 'upscale' && (
+          <Button onUp={onSuperResolution}>{m.upscale()}</Button>
+        )}
         <Button
           primary={showOriginal}
           icon={<EyeIcon className="w-6 h-6" />}
@@ -690,9 +712,6 @@ export default function Editor(props: EditorProps) {
         >
           {m.original()}
         </Button>
-        {!showOriginal && (
-          <Button onUp={onSuperResolution}>{m.upscale()}</Button>
-        )}
 
         <Button
           primary

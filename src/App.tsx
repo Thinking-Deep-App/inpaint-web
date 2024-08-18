@@ -1,9 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { ArrowLeftIcon, InformationCircleIcon } from '@heroicons/react/outline'
 import { useEffect, useRef, useState } from 'react'
 import { useClickAway } from 'react-use'
-import Button from './components/Button'
 import FileSelect from './components/FileSelect'
 import Modal from './components/Modal'
 import Editor from './Editor'
@@ -11,17 +9,11 @@ import { resizeImageFile } from './utils'
 import Progress from './components/Progress'
 import { downloadModel } from './adapters/cache'
 import * as m from './paraglide/messages'
-import {
-  languageTag,
-  onSetLanguageTag,
-  setLanguageTag,
-} from './paraglide/runtime'
 
 function App() {
   const [file, setFile] = useState<File>()
-  const [stateLanguageTag, setStateLanguageTag] = useState<'en' | 'zh'>('zh')
-
-  onSetLanguageTag(() => setStateLanguageTag(languageTag()))
+  const query = new URLSearchParams(window.location.search)
+  const inpaintType = query.get('type') || 'rmbg'
 
   const [showAbout, setShowAbout] = useState(false)
   const modalRef = useRef(null)
@@ -43,51 +35,6 @@ function App() {
 
   return (
     <div className="min-h-full flex flex-col">
-      <header className="z-10 shadow flex flex-row items-center md:justify-between h-14">
-        <Button
-          className={[
-            file ? '' : 'opacity-50 pointer-events-none',
-            'pl-1 pr-1 mx-1 sm:mx-5',
-          ].join(' ')}
-          icon={<ArrowLeftIcon className="w-6 h-6" />}
-          onClick={() => {
-            setFile(undefined)
-          }}
-        >
-          <div className="md:w-[290px]">
-            <span className="hidden sm:inline select-none">
-              {m.start_new()}
-            </span>
-          </div>
-        </Button>
-        <div className="text-4xl font-bold text-blue-600 hover:text-blue-700 transition duration-300 ease-in-out">
-          Inpaint-web
-        </div>
-        <div className="hidden md:flex justify-end w-[300px] mx-1 sm:mx-5">
-          <Button
-            className="mr-5 flex"
-            onClick={() => {
-              if (languageTag() === 'zh') {
-                setLanguageTag('en')
-              } else {
-                setLanguageTag('zh')
-              }
-            }}
-          >
-            <p>{languageTag() === 'en' ? '切换到中文' : 'en'}</p>
-          </Button>
-          <Button
-            className="w-38 flex sm:visible"
-            icon={<InformationCircleIcon className="w-6 h-6" />}
-            onClick={() => {
-              setShowAbout(true)
-            }}
-          >
-            <p>{m.feedback()}</p>
-          </Button>
-        </div>
-      </header>
-
       <main
         style={{
           height: 'calc(100vh - 56px)',
@@ -95,7 +42,11 @@ function App() {
         className=" relative"
       >
         {file ? (
-          <Editor file={file} />
+          <Editor
+            file={file}
+            onBack={() => setFile(undefined)}
+            inpaintType={inpaintType}
+          />
         ) : (
           <>
             <div className="flex h-full flex-1 flex-col items-center justify-center overflow-hidden">
