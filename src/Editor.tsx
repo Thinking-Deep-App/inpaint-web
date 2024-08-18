@@ -177,7 +177,7 @@ export default function Editor(props: EditorProps) {
     }
 
     const onPointerUp = async () => {
-      if (!original.src || showOriginal) {
+      if (!original.src || showOriginal || inpaintType === 'upscale') {
         return
       }
       if (lines.slice(-1)[0]?.pts.length === 0) {
@@ -237,7 +237,7 @@ export default function Editor(props: EditorProps) {
       draw()
     }
     const onPointerStart = () => {
-      if (!original.src || showOriginal) {
+      if (!original.src || showOriginal || inpaintType === 'upscale') {
         return
       }
       const currLine = lines[lines.length - 1]
@@ -252,7 +252,7 @@ export default function Editor(props: EditorProps) {
     canvas.addEventListener('touchend', onPointerUp)
     canvas.onmouseenter = () => {
       window.clearTimeout(hideBrushTimeout)
-      setShowBrush(true && !showOriginal)
+      setShowBrush(true && !showOriginal && inpaintType !== 'upscale')
     }
     canvas.onmouseleave = () => setShowBrush(false)
     canvas.onmousedown = onPointerStart
