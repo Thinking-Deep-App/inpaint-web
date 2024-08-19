@@ -700,7 +700,9 @@ export default function Editor(props: EditorProps) {
         )}
 
         {inpaintType === 'upscale' && (
-          <Button onUp={onSuperResolution}>{m.upscale()}</Button>
+          <Button primary onUp={onSuperResolution}>
+            {m.upscale()}
+          </Button>
         )}
         <Button
           primary={showOriginal}
