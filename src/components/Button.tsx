@@ -31,13 +31,15 @@ export default function Button(props: ButtonProps) {
   const [active, setActive] = useState(false)
   let background = ''
   if (primary) {
-    background = 'bg-primary text-white hover:bg-black hover:text-white'
+    background =
+      'text-white hover:opacity-90 hover:text-white bg-gradient-to-r from-[#3A7DF9] to-[#7556F9]'
   }
   if (active) {
-    background = 'bg-black text-white'
+    background =
+      'bg-gradient-to-r from-[#3A7DF9] to-[#7556F9] text-white hover:opacity-90'
   }
   if (!primary && !active) {
-    background = 'hover:bg-primary'
+    background = 'bg-[#d3d3d3] text-[#a1a1a1] cursor-not-allowed'
   }
   return (
     <div

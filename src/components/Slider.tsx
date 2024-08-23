@@ -13,10 +13,13 @@ export default function Slider(props: SliderProps) {
   const step = ((max || 100) - (min || 0)) / 100
 
   return (
-    <div className="inline-flex items-center space-x-4 text-black">
+    <div className="inline-flex items-center text-black">
       <span>{label}</span>
       <input
-        className={['appearance-none rounded-full h-2', 'bg-primary'].join(' ')}
+        className={[
+          'appearance-none rounded-full h-2 w-[23rem]',
+          'bg-primary',
+        ].join(' ')}
         type="range"
         step={step}
         min={min}
@@ -27,6 +30,11 @@ export default function Slider(props: SliderProps) {
           ev.preventDefault()
           ev.stopPropagation()
           onChange(parseInt(ev.currentTarget.value, 10))
+        }}
+        style={{
+          background: `linear-gradient(to right, red ${
+            ((value! - min!) / (max! - min!)) * 100
+          }%, gray ${((value! - min!) / (max! - min!)) * 100}%)`,
         }}
       />
     </div>

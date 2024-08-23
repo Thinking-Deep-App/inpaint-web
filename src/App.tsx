@@ -10,8 +10,12 @@ import Progress from './components/Progress'
 import { downloadModel } from './adapters/cache'
 import * as m from './paraglide/messages'
 
-function App() {
-  const [file, setFile] = useState<File>()
+interface AppProps {
+  initialFile?: File
+}
+
+function App({ initialFile }: AppProps) {
+  const [file, setFile] = useState<File | undefined>(initialFile)
   const query = new URLSearchParams(window.location.search)
   const inpaintType = query.get('type') || 'rmbg'
 
@@ -28,10 +32,30 @@ function App() {
     setShowAbout(false)
   })
 
+  useEffect(() => {
+    if (initialFile) {
+      setFile(initialFile)
+    }
+  }, [initialFile])
+
   async function startWithDemoImage(img: string) {
     const imgBlob = await fetch(`/examples/${img}.jpeg`).then(r => r.blob())
     setFile(new File([imgBlob], `${img}.jpeg`, { type: 'image/jpeg' }))
   }
+  function receiveMessage(event: MessageEvent) {
+    console.log('received message', event.data)
+    if (event.data.file) {
+      setFile(event.data.file)
+    }
+  }
+  useEffect(() => {
+    console.log('addEventListener message')
+    window.addEventListener('message', receiveMessage, false)
+
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [])
 
   return (
     <div className="min-h-full flex flex-col">
@@ -44,26 +68,21 @@ function App() {
         {file ? (
           <Editor
             file={file}
-            onBack={() => setFile(undefined)}
+            onBack={() => {
+              // 发送消息给父窗口
+              window.parent.postMessage({ action: 'exitIframe' }, '*')
+              setFile(undefined)
+            }}
             inpaintType={inpaintType}
           />
         ) : (
           <>
-            <div className="flex h-full flex-1 flex-col items-center justify-center overflow-hidden">
-              <div className="h-72 sm:w-1/2 max-w-5xl">
-                <FileSelect
-                  onSelection={async f => {
-                    const { file: resizedFile } = await resizeImageFile(
-                      f,
-                      1024 * 4
-                    )
-                    setFile(resizedFile)
-                  }}
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row pt-10 items-center justify-center cursor-pointer">
-                <span className="text-gray-500">{m.try_it_images()}</span>
-                <div className="flex space-x-2 sm:space-x-4 px-4">
+            {/* <div className="flex h-full flex-1 justify-between p-4">
+              <div className="flex-1 flex justify-end items-center p-4">
+                <div
+                  className="grid grid-cols-3 gap-4"
+                  style={{ width: '100%', maxWidth: '400px' }}
+                >
                   {['bag', 'dog', 'car', 'bird', 'jacket', 'shoe', 'paris'].map(
                     image => (
                       <div
@@ -74,22 +93,35 @@ function App() {
                         tabIndex={-1}
                       >
                         <img
-                          className="rounded-md hover:opacity-75 w-auto h-25"
+                          className="rounded-md hover:opacity-75 w-full h-full"
                           src={`examples/${image}.jpeg`}
                           alt={image}
-                          style={{ height: '100px' }}
+                          style={{ height: '100px', objectFit: 'cover' }}
                         />
                       </div>
                     )
                   )}
                 </div>
               </div>
-            </div>
+              <div className="flex-1 flex justify-start items-center p-4">
+                <div className="h-72 sm:w-1/2 max-w-5xl">
+                  <FileSelect
+                    onSelection={async f => {
+                      const { file: resizedFile } = await resizeImageFile(
+                        f,
+                        1024 * 4
+                      )
+                      setFile(resizedFile)
+                    }}
+                  />
+                </div>
+              </div>
+            </div> */}
           </>
         )}
       </main>
 
-      {showAbout && (
+      {/* {showAbout && (
         <Modal>
           <div ref={modalRef} className="text-xl space-y-5">
             <p>
@@ -120,7 +152,7 @@ function App() {
             </p>
           </div>
         </Modal>
-      )}
+      )} */}
       {!(downloadProgress === 100) && (
         <Modal>
           <div className="text-xl space-y-5">
