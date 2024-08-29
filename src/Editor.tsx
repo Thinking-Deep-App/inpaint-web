@@ -282,6 +282,23 @@ export default function Editor(props: EditorProps) {
     hideBrushTimeout,
   ])
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  const buttonStyle = {
+    width: isMobile ? '6rem' : '11.25rem',
+  }
+
   useEffect(() => {
     if (!separator || !originalImg) return
 
@@ -501,17 +518,17 @@ export default function Editor(props: EditorProps) {
   return (
     <div
       className={[
-        'flex flex-col items-center h-full justify-between bg-white',
+        'flex flex-col items-center justify-between bg-white',
         isInpaintingLoading ? 'pointer-events-none' : '',
       ].join(' ')}
       style={{
-        border: '2px solid #ccc', // 边框颜色和宽度
+        border: '1px solid #ccc', // 边框颜色和宽度
         borderTopLeftRadius: '12px', // 左上角圆角
         borderTopRightRadius: '12px', // 右上角圆角
         borderBottomLeftRadius: '0', // 左下角无圆角
         borderBottomRightRadius: '0', // 右下角无圆角
         width: '100%', // 设置宽度为 100%，然后通过 maxWidth 控制最大宽度
-        maxWidth: 'max-content', // 工具栏的宽度决定整个 div 的宽度
+        maxWidth: isMobile ? '100%' : '56rem', // 工具栏的宽度决定整个 div 的宽度
         margin: '0 auto', // 让整个组件居中
         marginTop: '1.5rem',
       }}
@@ -520,17 +537,18 @@ export default function Editor(props: EditorProps) {
       <div
         className={[
           'flex-shrink-0',
-          'bg-white rounded-md border border-gray-300 hover:border-gray-400 shadow-md hover:shadow-lg p-4 transition duration-200 ease-in-out',
-          'flex items-center w-full max-w-4xl py-6 mb-4, justify-between',
-          'flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-5',
+          'bg-white border-gray-300 hover:border-gray-400 shadow-md hover:shadow-lg p-4 transition duration-200 ease-in-out',
+          'flex items-center w-full max-w-full py-6 mb-4, justify-between mr-2 ml-2 mt-2',
+          'flex-row space-x-2',
         ].join(' ')}
       >
         <Button
           primary
           onClick={() => onBack()}
           icon={<ArrowLeftIcon className="w-6 h-6" />}
+          style={buttonStyle}
         >
-          Back
+          {!isMobile && 'Back'}
         </Button>
         <Button
           primary={renders.length > 0}
@@ -550,8 +568,9 @@ export default function Editor(props: EditorProps) {
               />
             </svg>
           }
+          style={buttonStyle}
         >
-          {m.undo()}
+          {!isMobile && 'Undo'}
         </Button>
         {/* {inpaintType === 'rmbg' && (
           <Slider
@@ -576,16 +595,18 @@ export default function Editor(props: EditorProps) {
             setShowOriginal(!showOriginal)
             setTimeout(() => setSeparatorLeft(0), 300)
           }}
+          style={buttonStyle}
         >
-          {m.original()}
+          {!isMobile && 'Original'}
         </Button>
 
         <Button
           primary
           icon={<DownloadIcon className="w-6 h-6" />}
           onClick={download}
+          style={buttonStyle}
         >
-          {m.download()}
+          {!isMobile && 'Download'}
         </Button>
       </div>
       {/* 画图 */}
@@ -598,7 +619,9 @@ export default function Editor(props: EditorProps) {
         ].join(' ')}
         style={{
           width: '50rem',
-          height: '37.5rem',
+          height: '26rem',
+          maxWidth: '100%',
+          maxHeight: '26rem',
           backgroundColor: '#ffffff',
         }}
         ref={canvasDiv}
@@ -693,7 +716,7 @@ export default function Editor(props: EditorProps) {
           </div>
           {isInpaintingLoading && (
             <div className="z-10 bg-white absolute bg-opacity-80 top-0 left-0 right-0 bottom-0  h-full w-full flex justify-center items-center">
-              <div ref={modalRef} className="text-xl space-y-5 w-4/5 sm:w-1/2">
+              <div ref={modalRef} className="text-xl space-y-5 w-4/5">
                 <p>It is being processed, please be patient...</p>
                 <Progress percent={generateProgress} />
               </div>
@@ -704,7 +727,7 @@ export default function Editor(props: EditorProps) {
 
       {/* Slider and Button Section */}
       <div
-        className="flex-shrink-0 w-full max-w-4xl flex justify-center"
+        className="flex-shrink-0 w-full flex justify-center"
         style={{
           marginTop: '0.5rem',
           marginBottom: '0.5rem',
@@ -737,7 +760,7 @@ export default function Editor(props: EditorProps) {
         className={[
           'flex-shrink-0 bg-white',
           'mt-4 border p-3 rounded',
-          'flex items-left w-full max-w-4xl',
+          'flex items-left w-full ',
           'space-y-0 flex-row space-x-5',
           'scrollbar-thin scrollbar-thumb-black scrollbar-track-primary overflow-x-scroll',
         ].join(' ')}

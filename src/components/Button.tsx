@@ -64,14 +64,16 @@ export default function Button(props: ButtonProps) {
       }}
       tabIndex={-1}
       className={[
-        'inline-flex space-x-3 h-10 items-center px-5 rounded-full cursor-pointer ',
+        'inline-flex space-x-3 h-10 items-center justify-center px-5 rounded-full cursor-pointer ',
         background,
         className,
       ].join(' ')}
       style={style}
     >
       {icon}
-      <span className="whitespace-nowrap select-none">{children}</span>
+      {children && (
+        <span className="whitespace-nowrap select-none">{children}</span>
+      )}
     </div>
   )
 }

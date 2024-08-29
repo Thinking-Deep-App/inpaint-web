@@ -58,7 +58,7 @@ function App({ initialFile }: AppProps) {
   }, [])
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col max-w-full">
       <main
         style={{
           height: 'calc(100vh - 56px)',
